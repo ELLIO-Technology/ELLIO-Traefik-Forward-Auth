@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - web
+
+  forwardauth:
+    build: .
+    environment:
+      - ELLIO_BOOTSTRAP=${ELLIO_BOOTSTRAP}
+      - PORT=8080
+      - METRICS_PORT=9090
+      - LOG_LEVEL=debug
+      - MAX_RETRY_ATTEMPTS=3
+      - RETRY_DELAY=10s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.forwardauth.forwardAuth.address=http://forwardauth:8080/auth"
+      - "traefik.http.middlewares.forwardauth.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.forwardauth.forwardAuth.authResponseHeaders=X-Auth-User,X-Auth-Groups"
+      - "traefik.http.services.forwardauth.loadbalancer.server.port=8080"
+      # Metrics endpoint configuration
+      - "traefik.http.routers.forwardauth-metrics.rule=Host(`metrics.localhost`) || PathPrefix(`/metrics`)"
+      - "traefik.http.routers.forwardauth-metrics.entrypoints=web"
+      - "traefik.http.routers.forwardauth-metrics.service=forwardauth-metrics"
+      - "traefik.http.services.forwardauth-metrics.loadbalancer.server.port=9090"
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    networks:
+      - web
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami.middlewares=forwardauth"
+    networks:
+      - web
+
+  nginx:
+    image: nginx:alpine
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.rule=Host(`nginx.localhost`)"
+      - "traefik.http.routers.nginx.entrypoints=web"
+      - "traefik.http.routers.nginx.middlewares=forwardauth"
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge

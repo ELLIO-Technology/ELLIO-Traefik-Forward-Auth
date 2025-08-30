@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          
+          echo "## What's Changed" > changelog.md
+          echo "" >> changelog.md
+          
+          if [ -z "$PREV_TAG" ]; then
+            echo "Initial release" >> changelog.md
+          else
+            # Get commit messages between tags
+            git log --pretty=format:"* %s (%h)" ${PREV_TAG}..${CURRENT_TAG} >> changelog.md
+          fi
+          
+          echo "" >> changelog.md
+          echo "## Docker Images" >> changelog.md
+          echo "" >> changelog.md
+          echo "Multi-architecture images are available for:" >> changelog.md
+          echo "* linux/amd64 (x86_64)" >> changelog.md
+          echo "* linux/arm64 (ARM 64-bit)" >> changelog.md
+          echo "* linux/arm/v7 (ARM 32-bit, Raspberry Pi)" >> changelog.md
+          echo "" >> changelog.md
+          echo "\`\`\`bash" >> changelog.md
+          echo "# Pull the latest version" >> changelog.md
+          echo "docker pull elliotechnology/ellio_traefik_forward_auth:${CURRENT_TAG}" >> changelog.md
+          echo "" >> changelog.md
+          echo "# Or use the latest tag" >> changelog.md
+          echo "docker pull elliotechnology/ellio_traefik_forward_auth:latest" >> changelog.md
+          echo "\`\`\`" >> changelog.md
+          echo "" >> changelog.md
+          echo "## Configuration" >> changelog.md
+          echo "See the [README](https://github.com/${{ github.repository }}/blob/${CURRENT_TAG}/README.md) for configuration details." >> changelog.md
+          
+          # Set multiline output
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}
+          generate_release_notes: true
+
+      - name: Update Docker Hub Description
+        if: ${{ !contains(github.ref, '-rc') && !contains(github.ref, '-beta') && !contains(github.ref, '-alpha') }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        run: |
+          # Login to Docker Hub
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          
+          # Create description file
+          cat > docker-description.md << 'EOF'
+          # ELLIO Traefik ForwardAuth
+          
+          High-performance forward authentication server for Traefik and other reverse proxies.
+          
+          ## Quick Start
+          
+          ```bash
+          docker run -d \
+            -e ELLIO_BOOTSTRAP=your_bootstrap_url \
+            -p 8080:8080 \
+            elliotechnology/ellio_traefik_forward_auth:latest
+          ```
+          
+          ## Features
+          
+          - Multi-architecture support (amd64, arm64, arm/v7)
+          - Efficient IP/CIDR matching with O(log n) lookups
+          - Zero-downtime configuration updates
+          - Prometheus metrics endpoint
+          - Minimal resource usage (~10MB image, <50MB RAM)
+          
+          ## Environment Variables
+          
+          - `ELLIO_BOOTSTRAP`: Bootstrap configuration URL (required)
+          - `PORT`: Auth server port (default: 8080)
+          - `METRICS_PORT`: Prometheus metrics port (default: 9090)
+          - `LOG_LEVEL`: Logging level (default: info)
+          
+          ## Documentation
+          
+          Full documentation available at: https://github.com/ELLIO-Technology/ellio-forwardauth-docker
+          
+          ## Tags
+          
+          - `latest`: Latest stable release
+          - `stage`: Development builds from stage branch
+          - `vX.Y.Z`: Specific version releases
+          
+          All tags support multiple architectures automatically.
+          EOF
+          
+          # Note: Docker Hub API for updating descriptions requires additional tooling
+          # This is a placeholder for when Docker Hub API token is configured
+          echo "Docker Hub description update would happen here with proper API setup"

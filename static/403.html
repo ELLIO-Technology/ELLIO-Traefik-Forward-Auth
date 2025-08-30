@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Forbidden | ELLIO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0094FF;
+            --primary-light: #3AAFFF;
+            --primary-dark: #0070CC;
+            --bg-dark: #0A1628;
+            --bg-darker: #040B14;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --accent: #1E3A5F;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.4;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .particle:nth-child(1) { 
+            width: 3px; height: 3px; 
+            left: 10%; 
+            animation-delay: 0s; 
+            animation-duration: 20s;
+        }
+        .particle:nth-child(2) { 
+            width: 2px; height: 2px; 
+            left: 20%; 
+            animation-delay: 2s; 
+            animation-duration: 18s;
+        }
+        .particle:nth-child(3) { 
+            width: 4px; height: 4px; 
+            left: 30%; 
+            animation-delay: 4s; 
+            animation-duration: 22s;
+        }
+        .particle:nth-child(4) { 
+            width: 2px; height: 2px; 
+            left: 40%; 
+            animation-delay: 6s; 
+            animation-duration: 19s;
+        }
+        .particle:nth-child(5) { 
+            width: 3px; height: 3px; 
+            left: 50%; 
+            animation-delay: 8s; 
+            animation-duration: 21s;
+        }
+        .particle:nth-child(6) { 
+            width: 2px; height: 2px; 
+            left: 60%; 
+            animation-delay: 10s; 
+            animation-duration: 17s;
+        }
+        .particle:nth-child(7) { 
+            width: 4px; height: 4px; 
+            left: 70%; 
+            animation-delay: 12s; 
+            animation-duration: 23s;
+        }
+        .particle:nth-child(8) { 
+            width: 3px; height: 3px; 
+            left: 80%; 
+            animation-delay: 14s; 
+            animation-duration: 20s;
+        }
+        .particle:nth-child(9) { 
+            width: 2px; height: 2px; 
+            left: 90%; 
+            animation-delay: 16s; 
+            animation-duration: 18s;
+        }
+        .particle:nth-child(10) { 
+            width: 3px; height: 3px; 
+            left: 15%; 
+            animation-delay: 18s; 
+            animation-duration: 24s;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            padding: 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+            filter: drop-shadow(0 0 30px rgba(0, 148, 255, 0.3));
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(0, 148, 255, 0.3));
+            }
+            to {
+                filter: drop-shadow(0 0 40px rgba(0, 148, 255, 0.6));
+            }
+        }
+
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            animation: glitch 3s infinite;
+            position: relative;
+        }
+
+        .error-code::before,
+        .error-code::after {
+            content: '403';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .error-code::before {
+            animation: glitch-1 0.5s infinite;
+            color: var(--primary-light);
+            z-index: -1;
+        }
+
+        .error-code::after {
+            animation: glitch-2 0.5s infinite;
+            color: var(--primary-dark);
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+            0%, 100% {
+                text-shadow: 0 0 0 transparent;
+            }
+            95% {
+                text-shadow: 0 0 0 transparent;
+            }
+            96% {
+                text-shadow: -2px 0 var(--primary-light), 2px 0 var(--primary-dark);
+            }
+            97%, 98% {
+                text-shadow: -2px 0 var(--primary-light), 2px 0 var(--primary-dark);
+            }
+            99% {
+                text-shadow: 0 0 0 transparent;
+            }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+            95% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+            96% {
+                clip-path: inset(30% 0 40% 0);
+                transform: translate(-2px, -1px);
+            }
+            97% {
+                clip-path: inset(60% 0 10% 0);
+                transform: translate(1px, 2px);
+            }
+            98% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(2px, -1px);
+            }
+            99% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+            95% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+            96% {
+                clip-path: inset(60% 0 20% 0);
+                transform: translate(2px, 1px);
+            }
+            97% {
+                clip-path: inset(20% 0 60% 0);
+                transform: translate(-1px, -2px);
+            }
+            98% {
+                clip-path: inset(80% 0 10% 0);
+                transform: translate(-2px, 1px);
+            }
+            99% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .message {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .lock-animation {
+            width: 60px;
+            height: 60px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .lock-body {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 4px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 20px rgba(0, 148, 255, 0.4);
+        }
+
+        .lock-shackle {
+            width: 24px;
+            height: 24px;
+            border: 4px solid var(--primary);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: lockShackle 4s ease-in-out infinite;
+        }
+
+        @keyframes lockShackle {
+            0%, 45%, 100% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+            50%, 95% {
+                transform: translateX(-50%) rotate(-10deg) translateX(-2px);
+            }
+        }
+
+        .protection-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            animation: fadeIn 1s ease-out 0.8s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .protection-footer span {
+            margin-right: 0.25rem;
+        }
+
+        .protection-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .protection-footer a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .protection-footer a:hover {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px rgba(0, 148, 255, 0.5);
+        }
+
+        .protection-footer a:hover::after {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .message {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://cdn.ellio.tech/logo/ELLIO_dark.png" alt="ELLIO Logo" class="logo">
+        </div>
+
+        <div class="error-code">403</div>
+        
+        <h1>Access Forbidden</h1>
+        
+        <div class="lock-animation">
+            <div class="lock-shackle"></div>
+            <div class="lock-body"></div>
+        </div>
+
+        <p class="message">
+            Access to this resource is denied.
+        </p>
+
+        <div class="protection-footer">
+            <span>Protection by</span>
+            <a href="https://ellio.tech" target="_blank" rel="noopener noreferrer">ELLIO</a>
+        </div>
+    </div>
+
+    <script>
+        // Add dynamic particles on mouse move
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.98) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '2px';
+                particle.style.height = '2px';
+                particle.style.background = '#0094FF';
+                particle.style.borderRadius = '50%';
+                particle.style.left = e.pageX + 'px';
+                particle.style.top = e.pageY + 'px';
+                particle.style.pointerEvents = 'none';
+                particle.style.opacity = '0.6';
+                particle.style.animation = 'fadeOut 1s ease-out forwards';
+                document.body.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1000);
+            }
+        });
+
+        // Add fadeOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    transform: scale(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+forwardauth
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.env
+vendor/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
