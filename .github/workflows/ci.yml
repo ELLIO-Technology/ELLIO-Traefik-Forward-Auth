@@ -182,21 +182,29 @@ jobs:
       - name: Extract metadata
         id: meta
         run: |
+          # Get commit SHA
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          
           # Version determination
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
+            # Check if this tag is on main branch
+            git fetch origin main --depth=1
+            if git merge-base --is-ancestor HEAD origin/main; then
+              # Version tag on main branch - create version and latest tags
+              VERSION=${GITHUB_REF#refs/tags/}
+              echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+              echo "DOCKER_TAGS=${{ env.DOCKER_REPO }}:${SHORT_SHA},${{ env.DOCKER_REPO }}:${VERSION},${{ env.DOCKER_REPO }}:latest" >> $GITHUB_OUTPUT
+            else
+              # Version tag not on main - just create SHA tag
+              VERSION=${SHORT_SHA}
+              echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+              echo "DOCKER_TAGS=${{ env.DOCKER_REPO }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Regular push - just create SHA tag
+            VERSION=${SHORT_SHA}
             echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-            echo "DOCKER_TAGS=${{ env.DOCKER_REPO }}:${VERSION},${{ env.DOCKER_REPO }}:latest" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/heads/stage ]]; then
-            SHORT_SHA=$(git rev-parse --short HEAD)
-            VERSION="stage-${SHORT_SHA}"
-            echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-            echo "DOCKER_TAGS=${{ env.DOCKER_REPO }}:stage,${{ env.DOCKER_REPO }}:stage-${SHORT_SHA}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/heads/main ]]; then
-            SHORT_SHA=$(git rev-parse --short HEAD)
-            VERSION="main-${SHORT_SHA}"
-            echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-            echo "DOCKER_TAGS=${{ env.DOCKER_REPO }}:main,${{ env.DOCKER_REPO }}:main-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "DOCKER_TAGS=${{ env.DOCKER_REPO }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
           fi
           
           # Git metadata
