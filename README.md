@@ -112,7 +112,7 @@ In the event of deployment issues:
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/ELLIO-Technology/ellio-forwardauth-docker/issues)
+- **Issues**: [GitHub Issues](https://github.com/ELLIO-Technology/ellio_traefik_forward_auth/issues)
 - **Platform**: [platform.ellio.tech](https://platform.ellio.tech)
 
 ## License
